@@ -1,0 +1,178 @@
+//*****************************************
+// File: qsort.template 
+// Purpose: Implementation file for the quick sort functions
+// Author: Lisa Roach
+// Date: 4/28/2010
+//******************************************
+
+#include <iostream>
+
+//QuickSort Functions
+
+//******************************************
+//
+//	Function: partition
+//
+//	Purpose: Determine the starting and ending location of the sublists
+//		 that will be used to sort the vector
+//
+//	Parameters: first, last - integers
+//
+//	Member/Global Variables: degrees -vector
+//
+//	Pre-Conditions:First is less than last and recQuickSort has been called
+//
+//	Post-Conditions: Give the lower sublist value
+//
+//	Calls: swap(int, int)
+//
+//	Time-Complexity: O(n)	n being the size of the vector
+//	Detail: comparisions = (n-1)+C(starting point) + (Cn-starting point - 1). The for loop 
+//      loops n times, then swap has a constant time complexity
+//	Space-Complexity: O(1)
+//	Detail: 3 local variables are always called
+//
+//******************************************
+
+template<typename myType>
+int partition(int first, int last, std::vector<myType> &input_list){
+	int smallIndex, index; 
+	myType pivot;
+
+	swap(first, (first+last)/2, input_list);
+
+	pivot = input_list[first];
+	smallIndex = first;
+
+	for(index = first +1; index <= last; index++){
+		if(input_list[index] < pivot)
+		{
+			smallIndex++;
+			swap(smallIndex, index, input_list);
+		}
+
+	}
+	swap(first, smallIndex, input_list);
+	
+	return smallIndex;
+
+}
+
+//******************************************
+//
+//	Function: swap
+//
+//	Purpose: Swap two values in the vector
+//
+//
+//	Parameters: first, second - integers
+//
+//	Member/Global Variables: degrees -vector
+//
+//	Pre-Conditions:Partition has been called
+//
+//	Post-Conditions: Swaps two values in the vector, nothing is returned
+//
+//	Calls: None
+//
+//	Time-Complexity: O(1)
+//	Details: 3 steps every time 
+//	Space-Complexity: O(1)
+//	Details: 1 local variable created each time
+//******************************************
+
+template<typename myType>
+void swap(int first, int second, std::vector<myType> &input_list){
+	myType temp;
+
+	temp = input_list[first];
+	input_list[first] = input_list[second];
+	input_list[second] = temp;
+
+}
+
+//******************************************
+//
+//	Function: recQuickSort
+//
+//	Purpose: Recursive version of quicksort: calls parition which swaps values, then calls
+//		 itself again/
+//
+//	Parameters: first, last - integers
+//
+//	Member/Global Variables: None
+//
+//	Pre-Conditions: quickSort has been called
+//
+//	Post-Conditions: The vector is sorted
+//
+//	Calls: partition, recQuickSort
+//
+//	Time-Complexity:O(n^2)
+//	Detail: 1+1+T(n)+1 + T(n) +1 = 5+ 2T(n) = O(n) is the time complexity without the
+//	call to parition, but since partition has a complexity of O(n) the total becomes O(n^2).
+//	Space-Complexity:O(n) - n being size of vector
+//	Detail: n recursive calls are made in worst case scenario. Each call requires constant 
+//	        space. 
+//******************************************
+
+template<typename myType>
+void recQuickSort(int first, int last, std::vector<myType> &input_list){
+	int pivot;
+
+	if(first < last){
+		pivot = partition(first, last, input_list);
+		recQuickSort(first, pivot-1, input_list);
+		recQuickSort(pivot+1, last, input_list);
+	}
+}
+
+//******************************************
+//
+//	Function: quickSort
+//
+//	Purpose: Calls the recursive quick sort function to sort the input_list
+//
+//
+//	Parameters: None
+//
+//	Member/Global Variables: none
+//
+//	Pre-Conditions: The degrees vetor is filled
+//
+//	Post-Conditions: The vector is sorted
+//
+//	Calls: function recQuickSort
+//
+//	Time-Complexity: O(n^2)
+//	Detail: There is one subtraction plus a function call to a function that takes O(n^2). So 
+//	n^2 + 1 is still O(n^2), with n as the size of the vector
+//	Space-Complexity:O(1)
+//	Detail: constant amount of space is always used
+//******************************************
+
+template<typename myType>
+void qsort(std::vector<myType> &input_list){
+	int size = input_list.size();
+	recQuickSort(0, size-1, input_list);	
+//	print_quick(input_list);
+
+}
+
+//*************************************
+// Function:print_quick
+// Purpose: Testing function, prints the sorted list
+// 
+// Parameters:vector<myType> input_list
+// Calls:None
+// Time Complexity: O(number of items)
+// Space Complexity: O(1)
+//
+//*************************************
+
+template<typename myType>
+void print_quick(std::vector<myType> &input_list){
+	for(int i = 0; i < input_list.size(); i++){
+		std::cout<<input_list[i]<<std::endl;
+	}
+}
