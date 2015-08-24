@@ -11,81 +11,53 @@ import os
 import sys
 from collections import OrderedDict
 import re
-
+import filecmp
 
 
 
 def walk_files(path):
 
-'''Fill a dictionary with the filenames and sizes, sort the dictionary and send it to delete_dups'''
+	'''Fill a dictionary with the filenames and sizes, sort the dictionary and send it to delete_dups'''
 
 	try:
-		os.chdir(path)
+			os.chdir(path)
 	except:
-		print "There was an error. Check your path name." + path 
+		print "There was an error. Check your path name." + path 	
 		main()
 
-	files_by_size = {}
+
+	filename = ""
+	counter_outer = 0
+	
 
 	#use os.walk to sort by size
 	for root, dir, f in os.walk(path):		
 	
-		for name in f:
+		for filename1 in f:
+			counter_inner = 0
+			if os.path.isfile(filename1):
+				for filename2 in f:
+					if os.path.isfile(filename2):
+						if counter_outer != counter_inner:
+						#Check that the files are in the current working directory
+							if root == os.getcwd():
+								print "File1: ", filename1, counter_outer, " File2: ", filename2, counter_inner
+						
+								if os.path.getsize(filename1) == os.path.getsize(filename2):						
 
-			#Check that the files are in the current working directory
-			if root == os.getcwd():
-				statinfo = os.stat(name) 
-				size = statinfo.st_size 
-				files_by_size[name] = size 
+									if filecmp.cmp(filename1, filename2, shallow=False):
+										os.remove(filename2)
+										print "File ", filename2, "removed"			
 
-			#if the files are nested in a folder, go into that folder and delete duplicates (recursive call)
-			else:
-				folder_files = walk_files(root)
-				delete_dups(folder_files)
-				clean_up(root)
-				os.chdir(original_path)
-			
-	#use the sorted function to order the dictionary by alphabetical order and store it in an ordered dictionary
-	sorted_files = OrderedDict(sorted(files_by_size.items(), key=lambda t: t[0])) 
-
-	#sorted_files now contains the filenames and sizes, sorted by size. Call the delet_dups function to delete
-	delete_dups(sorted_files)
-	
-	#this is here only for the else statement in the for loop, we need to keep a dictionary for within folders seperate so they dont get deleted twice
-	return(sorted_files)
-
-#Delete files with duplicate names and sizes
-
-def delete_dups(files):
-
-	'''Delete duplicate files based on name and file size'''
-	
-	names = files.keys()
-	values = files.values()
-	n = len(names)
-
-	for i in range(n-1):
-		m = values[i]
-		n = values[i+1]
-
-		if m == n:
-			currentName = names[i]
-			nextName = names[i+1]
-			
-			#remove parenthesis and everything in them and -Copy because duplicate files often have (#) at the end of them or  - Copy
-			currentNameFixed = re.sub(r'\s+\([^)]*\)| ?\s+- Copy', '', currentName)
-			nextNameFixed = re.sub(r'\s+\([^)]*\)| ?\s+- Copy', '', nextName)
-
-			#check if the name is the same as the other name (a second check after size to really make sure they are the same file!)
-			if currentNameFixed == nextNameFixed:
-				try:
-				#if it is the same file, remove it
-					os.remove(nextName)
-
-				#print a message 
-					print "Duplicate file ", nextName, " removed."
-				except:
-					pass
+							#if the files are nested in a folder, go into that folder and delete duplicates (recursive call)
+							else:
+								folder_files = walk_files(root)
+								#delete_dups(folder_files)
+								#clean_up(root)
+								os.chdir(original_path)
+					
+					counter_inner += 1
+			counter_outer += 1
 
 def clean_up(path):
 
@@ -109,7 +81,7 @@ def main():
 	global original_path
 	original_path = raw_input("Please enter the folder you want cleaned: ")
 	walk_files(original_path)
-	clean_up(original_path)
+	#clean_up(original_path)
 
 	user_input = raw_input("Your files have been cleaned! Would you like to run again? (y/n)")
 	if user_input == 'y':
