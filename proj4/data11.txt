@@ -1,0 +1,6 @@
+#Valid file, invalid spanning tree
+#One vertex, no edges
+undirected
+1
+Vertex A
+0

@@ -1,0 +1,16 @@
+#Invalid file- an edge uses an undeclared vertex
+undirected
+3
+Hamburger
+Taco
+Pizza
+3
+Hamburger
+Taco
+2
+Salad
+Taco
+4
+Taco
+Pizza
+2

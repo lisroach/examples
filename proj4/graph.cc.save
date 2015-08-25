@@ -1,0 +1,636 @@
+//*****************************************************
+//	Project File: graph.cc
+//	Purpose: Implementation file for graph class
+//	Author: Lisa Roach
+//	Date: April 01, 2014
+//	Email: lisaroach14@yahoo.com
+//****************************************************
+
+#include "graph.h"
+#include "list.cc"
+#include <stdlib.h>	//for atof
+#include <queue>
+//stuff for stringstream
+#include <sstream>
+#include <iomanip>
+#include <locale>
+
+//***********************************************
+//
+// Function: graphType()
+//
+// Purpose:Initilizes the graph object, sets root to NULL
+//
+// Parameters: None
+//
+//
+// Member/Global Variables:root
+//
+// Pre Conditions: None
+//
+// Post Conditions The graph object is initialized
+//
+// Calls: None
+//
+// Asymptotic Time Complexity: O(1)
+//
+// Asymptotic Space Complexity:O(1)	
+//
+//************************************************
+
+
+graphType::graphType(){
+	root = NULL;
+}
+//***********************************************
+//
+// Function:getSize()
+//
+// Purpose:returns the number of vertexes in the graph
+//
+// Parameters:None
+//
+// Member/Global Variables:maxSize
+//
+// Pre Conditions:The vertex number has been read in from the file
+//
+// Post Conditions: The number of vertices is returned
+//
+// Calls: None
+//
+// Asymptotic Time Complexity: O(1)
+//
+// Asymptotic Space Complexity: O(1)
+//
+//************************************************
+
+
+int graphType::getSize(){
+	return(maxSize);
+}
+//***********************************************
+//
+// Function:setEdges
+//
+// Purpose: Sets the number of edges to be read in for the graph
+//
+// Parameters: string item
+//
+//
+// Member/Global Variables: edgeNum
+//
+// Pre Conditions:The edge number has been read in from the file
+//
+// Post Conditions: If something went wrong, true is returned for error.
+//
+//
+// Calls: atof-- for conversion
+//
+// Asymptotic Time Complexity: O(1)
+//
+// Asymptotic Space Complexity:O(1)
+//
+//************************************************
+
+
+bool graphType::setEdges(const std::string& item){
+	edgeNum = atof(item.c_str());
+	if(item != "0" && edgeNum == 0){
+		return (true);
+	}
+	else
+	{
+		return (false);
+	}
+}
+//***********************************************
+//
+// Function: isVisited
+//
+// Purpose: Determines if the node has been visited or not
+//
+// Parameters:listNode<std::string>* current
+//
+// Member/Global Variables:name, visited
+//
+// Pre Conditions: The list is initialized
+//
+// Post Conditions: If the node has been visited true is returned
+//
+// Calls:None
+//
+// Asymptotic Time Complexity: O(1)
+//
+// Asymptotic Space Complexity: O(1)
+//
+//************************************************
+
+
+bool graphType::isVisited(listNode<std::string>* current){
+	node* treeNode;
+	treeNode = searchTree(current->name);
+
+	return(treeNode->visited);
+
+}
+//***********************************************
+//
+// Function:egdeNum
+//
+// Purpose: Returns the number of edges in the graph
+//
+// Parameters:None
+//
+// Member/Global Variables: edgeNum
+//
+// Pre Conditions:edgeNum has been filled
+//
+// Post Conditions: returns the edge numbers
+//
+// Calls:None
+//
+// Asymptotic Time Complexity: O(1)
+//
+// Asymptotic Space Complexity:O(1)
+//
+//************************************************
+
+
+int graphType::getEdgeNum(){
+	return (edgeNum);
+}
+//***********************************************
+//
+// Function:setDirection
+//
+// Purpose: Set the value of direction -either directed or undirected
+//
+// Parameters:string item
+//
+// Member/Global Variables: direction
+//
+// Pre Conditions: Direction has been read in from file
+//
+// Post Conditions: Direction is set
+//
+// Calls:none
+//
+// Asymptotic Time Complexity: O(1)
+//
+// Asymptotic Space Complexity:O(1)
+//
+//************************************************
+
+
+bool graphType::setDirection(const std::string& item){
+	if(item == "undirected"){
+		direction = false;
+		return (false);
+	}
+	else if(item == "directed"){
+		direction = true;
+		return (false);
+	}
+	else{		//first line is not direction, output error
+		return (true);
+	}
+}
+//***********************************************
+//
+// Function:setMax
+//
+// Purpose:Set the maximum number of vertices
+//
+// Parameters:string item
+//
+// Member/Global Variables:maxSize
+//
+// Pre Conditions:number of vertices has been read in from the file
+//
+// Post Conditions: maxSize has been set
+//
+// Calls: atof --for conversion
+//
+// Asymptotic Time Complexity:O(1)
+//
+// Asymptotic Space Complexity:O(1)
+//
+//************************************************
+
+
+bool graphType::setMax(const std::string& item){
+	maxSize = atof(item.c_str());
+	if(item != "0" && maxSize ==0){
+		return (true);
+	}	
+	else{
+		return (false);
+	}
+}
+//***********************************************
+//
+// Function: markVisited
+//
+// Purpose:Marks all of the instances of a vertice as visited
+//
+// Parameters:listNode<std::string>* current
+//
+// Member/Global Variables:visited, name
+//
+// Pre Conditions:List has been created and the vertex has been visited
+//
+// Post Conditions: All instances of the vertex marked as visited
+//
+// Calls:search
+//
+// Asymptotic Time Complexity:O(n) --this function would run in O(1) time, but it calls teh search function
+//
+// Asymptotic Space Complexity:O(1)
+//
+//************************************************
+
+
+void graphType::markVisited(listNode<std::string>* current){
+	node* markNode;
+	markNode = searchTree(current->name);
+	markNode->visited = true;
+	current->visited = true;
+}
+
+//***********************************************
+//
+// Function: breadthFirstTraversal
+//
+// Purpose: Fill the output queue with the breadth first found edges
+//
+// Parameters: string vertex
+//
+// Member/Global Variables:weight, parent, name, bfsQueue, outputQueue
+//
+// Pre Conditions:The graph is all full of vertices and edges. 
+//
+// Post Conditions: The output queue is filled with the breadth first found edges
+//
+// Calls:push(), top(), markVisited(), fillQueue(), searchTree(), pop()
+//
+// Asymptotic Time Complexity: O(number of vertices^2* number of edges^2) --this method is O(number of vertices-1) because
+//				that is how big the bfsQueue should be, but the function calls add time cmoplexity to it
+// Asymptotic Space Complexity: O(number of vertices) --this function is constant space, but other function calls add to the
+//				space (findAdjVertices, whic is called by fillQueue specifically). If this was a directed 
+//				graph, the call to findAdjVertices would never be made and this would be O(1).
+//************************************************
+
+
+std::queue<std::string> graphType::breadthFirstTraversal(const std::string vertex){
+	std::ostringstream Convert;
+	
+	node* vertexNode;
+	vertexNode = searchTree(vertex);	//grabs the start of the edge
+
+	if(vertexNode != NULL){
+		std::string converted; 
+
+		listNode<std::string>* current = NULL;
+		listNode<std::string>* compare = NULL;
+
+		fillQueue(vertex);
+		
+		//Iterate over the edges to find the least cost
+		while(bfsQueue.size() > 0) {
+			current = bfsQueue.top();
+			bfsQueue.pop();
+			if(!current->visited && !isVisited(current)){
+				vertexNode->visited = true;		//mark the node as visited
+				outputQueue.push(current->parent);
+				outputQueue.push(current->name);
+				Convert << current->weight;
+				converted = Convert.str();	
+				outputQueue.push(converted);
+				markVisited(current);
+				fillQueue(current->name);
+				converted = "";
+				Convert.str(std::string());
+			}			
+
+		}//end of while loop
+	}//if the second file contains a valid node name
+	else{
+		outputQueue.push("Error in graph file!");
+	}
+	return (outputQueue);
+}
+
+//***********************************************
+//
+// Function:findAdjVertices
+//
+// Purpose: Goes through all the nodes in the binary tree, if any of them have edges to the find parameter
+//	    add them to the queue because they are adjacent. 
+// Parameters:node* current, node* find
+//
+// Member/Global Variables:right, left, name, parent, visited, weight, next
+//
+// Pre Conditions: It is an undirected graph and all of the edges listed as adjacent to find have been put into the queue.
+//
+// Post Conditions: All of the rest of the adjacent vertices have been put into the queue.
+//
+// Calls:front, push
+//
+// Asymptotic Time Complexity: O(number of vertices*(number of edges-1)) - there is a recursive
+//				call to find all of the vertices, and then all of the edges are searched through (discluding 
+//				the edge that has already been used)
+// Asymptotic Space Complexity:O(number of vertices) -due to the recursive call on the stack. There is also additional space
+//				taken if a node is found because a new node is made
+//************************************************
+
+
+void graphType::findAdjVertices(node* current, node* find){
+	listNode<std::string>* tempNode;
+	listNode<std::string>* listNode1;
+	listNode1 = current->list.front();
+
+	
+	if(current->left != NULL){
+		findAdjVertices(current->left, find);
+	}
+	if(current->right != NULL){
+		findAdjVertices(current->right, find);
+	}
+
+	if(current!= NULL && current != find){
+		for(int i = 0; i < current->list.length(); i++){
+			if(listNode1->name == find->data){
+				tempNode = new listNode<std::string>;
+				tempNode->name = current->data;		//gives node the other edges name
+				tempNode->weight = listNode1->weight;	//but the current edges weight
+				tempNode->visited = false;
+				tempNode->next = NULL;
+				tempNode->parent = listNode1->name;
+			
+				bfsQueue.push(tempNode);
+			}//end of if	
+			if(listNode1->next != NULL){
+				listNode1 = listNode1->next;
+			}	
+		}//end of for
+	}//end of if
+
+}
+//***********************************************
+//
+// Function: fillQueue
+//
+// Purpose: Fill the priority queue with adjacent vertices
+//
+// Parameters: string vertex
+//
+// Member/Global Variables: bfsQueue, list, visited, next, root
+//
+// Pre Conditions:
+//
+// Post Conditions: The queue has been filled with all vertices adjacent to the vertex with name of the paramater
+//
+// Calls: isVisited, length, front, searchTree, findAdjVertices, push
+//
+// Asymptotic Time Complexity:O(number of vertices * number of edges^2) -findAdjVertices is vertices * edges, and this 
+//				method is O(number of edges)
+// Asymptotic Space Complexity: O(number of vertices) --constant time for this method, but gets findAdjVertices space
+//
+//************************************************
+
+
+void graphType::fillQueue(const std::string& vertex){
+
+	node* startVertex;
+	startVertex = searchTree(vertex);
+	listNode<std::string>* current;
+	current = startVertex->list.front();
+	for(int i = 0; i < startVertex->list.length(); i++){
+		if(!current->visited && !isVisited(current)){
+			bfsQueue.push(current);
+		}
+		current = current->next;
+	}
+	if(!direction){
+		findAdjVertices(root, startVertex);
+	}
+
+}
+
+//***********************************************
+//
+// Function:createBinarySearchtree
+//
+// Purpose: Create the binary search tree filled with all of the vertices
+//
+// Parameters:string item
+//
+// Member/Global Variables: data, tail, root
+//
+// Pre Conditions:A vertex name is read in from the file
+//
+// Post Conditions: A node is added to the brinary search tree with
+//		    the name brought in from the file
+//
+// Calls: Add node
+//
+// Asymptotic Time Complexity: O(n) - may have to go through all of the other vertices to find the spot for the last one. N 
+//					is the number of vertices. Again, the average case would be O(logn)
+// Asymptotic Space Complexity:O(1)
+//
+//************************************************
+
+
+bool graphType::createBinarySearchTree(const std::string& item){
+	node* current = root;
+	node* trail;
+	node* newNode;
+
+	newNode = addNode(item);
+	if(root == NULL){
+		root = newNode;
+	}
+	else{
+		current = root;
+		while(current != NULL){
+			trail = current;
+	
+			if(current->data == item){	//if the vertex is already declared it is an error
+				return(true);
+			}
+			else if(current->data > item){
+				current = current->left;
+			}
+			else{
+				current = current->right;
+			}
+		}//end of While
+		
+		if(trail->data > item){
+			trail->left = newNode;
+		}
+		else{
+			trail->right = newNode;
+		}
+
+	}//end of else
+	return (false);
+
+}
+
+/*
+void graphType::print(){
+	node* newNode;
+	std::string item = "Vertex C";
+	newNode = searchTree(item);
+	
+
+	newNode->list.printList(newNode->list);
+}
+*/
+//***********************************************
+//
+// Function:searchTree
+//
+// Purpose:Return the node that has the name searched for
+//
+// Parameters:string item
+//
+// Member/Global Variables: data
+//
+// Pre Conditions: The binary tree has been filled
+//
+// Post Conditions: The node that matches the name searched for it returned
+//
+// Calls: None
+//
+// Asymptotic Time Complexity: O(n) with n the number of vertices. Worst case, all of the vertices are searched.
+//				On average though, the time would be O(logn)
+// Asymptotic Space Complexity: O(1)
+//
+//************************************************
+
+
+node* graphType::searchTree(const std::string& item){
+	node* current;
+	
+	if(root==NULL){
+		//Make code for error here
+		return (root);
+	}	
+	else{
+		current = root;
+
+		while(current != NULL){
+			if(current->data == item){
+				return (current);
+			}
+			else if(current->data > item){
+				current = current->left;
+			}
+			else{
+				current = current->right;
+			}
+		}
+	}
+	return(current);	//this will be NULL if it was not found
+}
+
+
+//***********************************************
+//
+// Function:createEdges
+//
+// Purpose:Sets the edges of the graph in linked lists
+//
+// Parameters:string item, int edgeCount, node* startnode, int count
+//
+// Member/Global Variables: parent, data, list
+//
+// Pre Conditions:The vertexes have been filled into the binary search tree
+//
+// Post Conditions:The edges have been filled into a linked list
+//
+// Calls:insertLast, back, setWeight
+//
+// Asymptotic Time Complexity:O(1) - all of the function calls are constant time and there are no loops
+//
+// Asymptotic Space Complexity: O(1)
+//
+//************************************************
+
+
+bool graphType::createEdges(const std::string& item, int& edgeCount, node*& startNode, int& count){
+	//edgeCount counts the number of edges	
+	//startNode is the node in the binary tree that holds the vertex
+	//if there are more edges than supposed to be, error
+	if(edgeCount <= edgeNum){
+		bool error = false;
+		//if it is the first edge name
+		//just add one to edge count, do not store that edge
+		if(count == 0){
+			startNode = searchTree(item);
+			if(startNode == NULL){
+				return (true);
+			}			
+			
+			count++;
+		}
+		else if(count == 1){
+			startNode->list.insertLast(item);
+			
+			count++;
+		}
+		else{
+			listNode<std::string>* current;
+			current = startNode->list.back();
+			current->parent = startNode->data;
+			error = startNode->list.setWeight(item, current);
+			if(error){
+				return (true);
+			}
+			edgeCount++;
+			count = 0;
+		}
+		return (false);
+	}
+	else{
+		return (true);
+	}
+
+}
+
+//***********************************************
+//
+// Function:addNode
+//
+// Purpose: Add a new node to the binary search tree
+//
+// Parameters:string item
+//
+// Member/Global Variables: data, left, linkedList, list, visited
+//
+// Pre Conditions:Called by createBinarySearchTree
+//
+// Post Conditions: A new node has been created for the binary search tree
+//
+// Calls: none
+//
+// Asymptotic Time Complexity:O(1)
+//
+// Asymptotic Space Complexity:O(1)
+//
+//************************************************
+
+
+node* graphType::addNode(const std::string& item){
+	node* newNode = new node;
+	newNode->data = item;
+	newNode->left = NULL;
+	newNode->right = NULL;
+	linkedList newList;
+	newNode->list = newList;
+	newNode->visited = false;
+
+	return newNode;
+}

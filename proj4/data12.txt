@@ -1,0 +1,21 @@
+#All edges have the same weight, must rely on alphabetical sorting
+undirected
+4
+Vertex A
+Vertex C
+Vertex B
+Vertex D
+4
+Vertex A
+Vertex C
+
+Vertex B
+Vertex A
+
+Vertex D
+Vertex B
+
+Vertex A
+Vertex D
+
+

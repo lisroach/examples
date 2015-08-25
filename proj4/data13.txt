@@ -1,0 +1,15 @@
+#wrong- no weight just the next edge listed
+4
+Chicago
+New York
+London
+Washington
+4
+New York
+Chicago
+London
+Washington
+2
+London
+New York
+50

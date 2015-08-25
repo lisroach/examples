@@ -1,0 +1,18 @@
+#invalid file- repeating name of vertex
+undirected
+4
+Vertex A
+Vertex B
+Vertex A
+Vertex C
+3
+Vertex A
+Vertex B
+
+Vertex C
+Vertex A
+2
+Vertex B
+Vertex C
+2
+

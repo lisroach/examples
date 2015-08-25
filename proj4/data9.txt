@@ -1,0 +1,4 @@
+#graph with no vertices. Valid, but no spanning tree
+directed
+0
+0

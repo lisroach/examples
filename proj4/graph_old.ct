@@ -1,0 +1,357 @@
+#include "graph.h"
+#include "list.cc"
+#include <stdlib.h>	//for atof
+#include <iostream>	//remove this after testing
+#include <queue>
+//stuff for stringstream
+#include <sstream>
+#include <iomanip>
+#include <locale>
+
+graphType::graphType(){
+	root = NULL;
+	cSize = 0;
+}
+
+int graphType::getSize(){
+	return(maxSize);
+}
+
+bool graphType::setEdges(const std::string& item){
+	edgeNum = atof(item.c_str());
+	if(item != "0" && edgeNum == 0){
+		return (true);
+	}
+	else
+	{
+		return (false);
+	}
+}
+
+bool graphType::isVisited(listNode<std::string>* current){
+	node* treeNode;
+	treeNode = searchTree(current->name);
+
+	return(treeNode->visited);
+
+}
+
+int graphType::getEdgeNum(){
+	return (edgeNum);
+}
+bool graphType::setDirection(const std::string& item){
+	if(item == "undirected"){
+		direction = false;
+		return (false);
+	}
+	else if(item == "directed"){
+		direction = true;
+		return (false);
+	}
+	else{		//first line is not direction, output error
+		return (true);
+	}
+}
+
+bool graphType::setMax(const std::string& item){
+	maxSize = atof(item.c_str());
+	if(item != "0" && maxSize ==0){
+		return (true);
+	}	
+	else{
+		return (false);
+	}
+}
+
+//previous is only needed for undirected graphs
+//if the previous edge uses the same vertices as the thing currently being checked,
+//check if the current edge has a smaller weight.
+//if it does, remove the previous thing from the queue and add the current edge
+std::queue<std::string> graphType::breadthFirstTraversal(const std::string vertex, std::string previous){
+	std::ostringstream Convert;
+	
+	if(outputQueue.size() < (edgeNum-1)*3){
+		node* vertexNode;
+		vertexNode = searchTree(vertex);	//grabs the start of the edge
+		vertexNode->visited = true;		//mark the node as visited
+
+		listNode<std::string>* current = NULL;
+		listNode<std::string>* compare = NULL;
+
+
+		//Iterate over the edges to find the least cost
+		for(int i=0; i < vertexNode->list.length(); i++){
+			if(current == NULL){
+				current = vertexNode->list.front();
+				if(current->next != NULL){
+					compare = current->next;
+				}				
+				if(isVisited(current) && !direction && previous == current->name){
+					chooseSmallest(current, vertex);					
+				}
+			}
+			else{
+				//Check if current has been used
+				if(isVisited(current)){
+					if(compare != NULL){
+						current = compare;
+						if(compare->next != NULL){
+							compare = compare->next;
+						}
+					}
+				}
+				else{
+					if(current->weight > compare->weight){
+						if(!compare->visited){
+							current = compare;
+						}
+						else if(direction && previous == compare->name){
+							chooseSmallest(compare, vertex); 
+						
+						} 
+						if(compare->next != NULL){
+							compare = compare->next;
+						}
+						
+					}
+					else if(current->weight < compare->weight){
+						if(compare->next != NULL){
+							compare = compare->next;
+						}
+					}
+					else{						//if the weights are the same
+						if(current->name > compare->name){	//compare by name
+							if(!compare->visited){
+								current = compare;
+							}
+							else if(!direction && previous == compare->name){
+								chooseSmallest(compare, vertex);
+					
+							}
+							if(compare->next !=NULL){
+								compare = compare->next;
+							}
+						}
+						else{
+							if(compare->next != NULL){
+								compare = compare->next;
+							}
+						}
+					}//end of middle else
+				}
+			}//end of big else
+		}//end of for loop
+
+		if(current != NULL){
+			if(!current->visited){
+				previous = vertex;
+				current->visited = true;
+				outputQueue.push(vertex);
+				outputQueue.push(current->name);
+	
+				//convert the weight to a string
+				Convert << current->weight;
+				std::string temp = Convert.str();
+				outputQueue.push(temp);
+				breadthFirstTraversal(current->name, previous);	
+			}
+			else{
+				breadthFirstTraversal(previous, vertex);					
+			}
+		}
+		else{
+				breadthFirstTraversal(root->data, vertex);
+		}
+
+	}
+	return (outputQueue);
+
+}
+
+void graphType::chooseSmallest(listNode<std::string>* current, const std::string vertex){
+	std::string oldWeight = outputQueue.back();
+	double oldWeightConverted;
+	oldWeightConverted = atof(oldWeight.c_str());
+	std::ostringstream Convert;
+	std::string newWeight;
+
+	if(oldWeightConverted > current->weight){
+		current->visited = true;
+		outputQueue.pop();
+		outputQueue.pop();
+		outputQueue.pop();
+		outputQueue.push(current->name);
+		outputQueue.push(vertex);
+		Convert<< current->weight;
+		newWeight = Convert.str();
+		outputQueue.push(newWeight);	
+	}
+
+}
+
+void graphType::findAdjVertices(node* current){
+	listNode<std::string>* listNode;
+	listNode = current->list.first();
+
+	findAdjVertices(current->left);
+	for(int i = 0; i < current->list.size(); i++){
+		if(listNode->name == current->data){
+			bfsQueue.push(listNode);
+		}	
+		if(listNode->next != NULL){
+			listNode->next;
+		}	
+	}
+
+}
+
+
+
+bool graphType::createBinarySearchTree(const std::string& item){
+	node* current = root;
+	node* trail;
+	node* newNode;
+
+	newNode = addNode(item);
+	if(root == NULL){
+		root = newNode;
+	}
+	else{
+		current = root;
+		while(current != NULL){
+			trail = current;
+	
+			if(current->data == item){	//if the vertex is already declared it is an error
+				return(true);
+			}
+			else if(current->data > item){
+				current = current->left;
+			}
+			else{
+				current = current->right;
+			}
+		}//end of While
+		
+		if(trail->data > item){
+			trail->left = newNode;
+		}
+		else{
+			trail->right = newNode;
+		}
+
+	}//end of else
+	return (false);
+
+}
+
+void graphType::printTree(node* current) const{
+				
+}
+
+void graphType::print(){
+	node* newNode;
+	std::string item = "Vertex C";
+	newNode = searchTree(item);
+	
+
+	newNode->list.printList(newNode->list);
+}
+
+node* graphType::searchTree(const std::string& item){
+	node* current;
+	
+	if(root==NULL){
+		//Make code for error here
+		return (root);
+	}	
+	else{
+		current = root;
+
+		while(current != NULL){
+			if(current->data == item){
+				return (current);
+			}
+			else if(current->data > item){
+				current = current->left;
+			}
+			else{
+				current = current->right;
+			}
+		}
+	}
+	return(current);	//this will be NULL if it was not found
+}
+
+
+
+bool graphType::createEdges(const std::string& item, int& edgeCount, node*& startNode, int& count){
+	//edgeCount counts the number of edges	
+	//startNode is the node in the binary tree that holds the vertex
+	//if there are more edges than supposed to be, error
+	if(edgeCount <= edgeNum){
+		bool error = false;
+		//if it is the first edge name
+		//just add one to edge count, do not store that edge
+		if(count == 0){
+			startNode = searchTree(item);
+			if(startNode == NULL){
+				return (true);
+			}			
+			
+			count++;
+		}
+		else if(count == 1){
+			startNode->list.insertLast(item);
+			
+			count++;
+		}
+		else{
+			listNode<std::string>* current;
+			current = startNode->list.back();
+			error = startNode->list.setWeight(item, current);
+			if(error){
+				return (true);
+			}
+			edgeCount++;
+			count = 0;
+		}
+		return (false);
+	}
+	else{
+		return (true);
+	}
+
+}
+
+bool graphType::createGraph(const std::string& item, int arrayCount){
+	if(arrayCount < maxSize){
+
+		//Create the first item to be inserted into the array
+		node* newNode = addNode(item);
+
+		//Set the head of the linked list to the new item
+		//graph[arrayCount].head = newNode;
+
+		//Add one to the count
+		arrayCount++;
+
+		//Return no error
+		return (false);
+	}
+	else{
+		return (true);
+	}
+
+}
+
+node* graphType::addNode(const std::string& item){
+	node* newNode = new node;
+	newNode->data = item;
+	newNode->left = NULL;
+	newNode->right = NULL;
+	linkedList newList;
+	newNode->list = newList;
+	newNode->visited = false;
+
+	return newNode;
+}

@@ -1,0 +1,7 @@
+#Graph with no edges - valid graph, no spanning tree
+directed
+3
+Vertex A
+Vertex B
+Vertex C
+0

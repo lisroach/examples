@@ -1,0 +1,22 @@
+#directed graph
+#version of the example graph given
+#should be valid, but with different output
+directed
+4
+Vertex A
+Vertex C
+Vertex D
+Vertex B
+4
+Vertex A
+Vertex B
+2
+Vertex B
+Vertex A
+
+Vertex A
+Vertex C
+3
+Vertex C
+Vertex D
+1.5

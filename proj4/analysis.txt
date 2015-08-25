@@ -1,0 +1,22 @@
+	For this project we were required to store our graph in an adjacency list. This can easily done by creating an array 
+of linked lists, but in order to cut down on time searching for node names instead of using an array I stored the vertices in 
+a binary search tree. While the worst case time complexity is still O(n), the average time complexity of a binary search tree 
+is O(logn) for both searching an insertions in the tree. Each node in the tree contains a linked list of the adjacent 
+vertices. Each node contains all of the information needed for that node, including its visited property, weight, parent, 
+and name. This takes up extra space in the program, but saves time because the properties can be looked up in constant time. 
+	The most tedious function is findAdjVertices, which searches all the vetrices in the binary search tree (save the 
+starting node) to see if they have edges that are adjacent to the starting vertex. This function is needed only for undirected 
+graphs, because it is possible that in the linked list for a vertex an edge was not listed because it was listed instead in 
+its partner vertex. Therefore each node in the tree needs to be searched, and each node  in the corresponding linked list must 
+be searched. This takes the number of nodes * the number of edges time. Luckily, this function is only called for undirected 
+graphs, and directed graphs will go much faster. 
+	In order to implement the breadth first search traversal of the graph, I utilized a priority queue. After overloading 
+the () operator for the queue I was able to sort the edges by weight, or if weights were equal, alphabetically. The queue was 
+created by adding all of the edges in the linked list, and if the graph was undirected then calling the findAdjVertices 
+method. After the creation of this queue, a second queue was created to store what was pulled out of the priority queue. Not everything was 
+placed in the second queue, though, because once a vertice was pulled out it became marked as 'visited'. One of the 
+difficulties I ran into was because I used one node type for the nodes in the binary search tree and another in the linked 
+lists, special functions had to be created in order to mark both types as visited and to check the visited property of both 
+nodes. It may have been better to create one node type, but it was much easier to organize my code this way. 
+	Overall the code runs in O(number of vertices^4 * number of edges^2) time. If it is a directed graph, though, it runs 
+in O(number of vertices^3 * number of edges). The space is rather modest, with only O(number of vertices). 

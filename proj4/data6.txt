@@ -1,0 +1,18 @@
+#invalid file-not enough edges declared
+directed
+4
+Cleveland
+Columbus
+Dayton
+Toledo
+6
+Columbus
+Cleveland
+20
+Dayton
+Cleveland
+15
+Toledo
+Columbus
+19
+

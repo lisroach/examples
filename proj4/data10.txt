@@ -1,0 +1,9 @@
+#1 vertex with a loop
+#valid file, valid spanning tree
+directed
+1
+Vertex A
+1
+Vertex A
+Vertex A
+2

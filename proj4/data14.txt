@@ -1,0 +1,20 @@
+#All the nodes are connected to themselves, valid file invalid spanning tree
+directed
+4
+Vertex A
+Vertex B
+Vertex C
+Vertex D
+4
+Vertex A
+Vertex A
+2
+Vertex B
+Vertex B
+3
+Vertex C
+Vertex C
+5
+Vertex D
+Vertex D
+25

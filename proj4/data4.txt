@@ -1,0 +1,20 @@
+#invalid file- not enough vertices declared
+undirected
+5
+A
+B
+C
+#Now edges start
+4
+A
+B
+2
+C
+A
+3.5
+B
+A
+
+C
+B
+2.2

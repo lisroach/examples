@@ -1,0 +1,10 @@
+#Valid file but no spanning tree (a vertex with no edges exists)
+undirected
+3
+London
+Chicago
+New York
+1
+Chicago
+New York
+1.5
