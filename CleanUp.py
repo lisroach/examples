@@ -2,8 +2,7 @@
 	
 	This module will delete copied files and get rid of '(#) - Copy' appended to file names
 	
-	Improvements: Look into checksums
-				  Look into saving memory space
+	Improvements: Fix the CleanUp function
 				  
 '''
 
@@ -41,7 +40,7 @@ def walk_files(path):
 						if counter_outer != counter_inner:
 						#Check that the files are in the current working directory
 							if root == os.getcwd():
-								print "File1: ", filename1, counter_outer, " File2: ", filename2, counter_inner
+								#print "File1: ", filename1, counter_outer, " File2: ", filename2, counter_inner
 						
 								if os.path.getsize(filename1) == os.path.getsize(filename2):						
 
@@ -66,11 +65,13 @@ def clean_up(path):
 	for root, dir, f in os.walk(path):
 		for name in f:
 			if root == path:
-				currentNameFixed = re.sub(r'\s+\([^)]*\)| ?\s+- Copy', '', name)
-				try:
-					os.rename(name, currentNameFixed)
-				except:
-					print "System could not find filename ", name, " in order to rename it."
+				if "(" and "copy" in name:
+					print "hit!"
+					currentNameFixed = re.sub(r'\s+\([^)]*\)| ?\s+- Copy', '', name)
+					try:
+						os.rename(name, currentNameFixed)
+					except:
+						print "System could not find filename ", name, " in order to rename it."
 
 
 def main():
@@ -81,11 +82,13 @@ def main():
 	global original_path
 	original_path = raw_input("Please enter the folder you want cleaned: ")
 	walk_files(original_path)
-	#clean_up(original_path)
+	clean_up(original_path)
 
 	user_input = raw_input("Your files have been cleaned! Would you like to run again? (y/n)")
 	if user_input == 'y':
 		main()
+	if user_input == 'n':
+		exit()
 
 
 if __name__ == "__main__":
